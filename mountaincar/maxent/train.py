@@ -38,9 +38,10 @@ def idx_demo(env, one_feature):
 def idx_state(env, state):
     env_low = env.observation_space.low
     env_high = env.observation_space.high 
-    env_distance = (env_high - env_low) / one_feature 
-    position_idx = int((state[0] - env_low[0]) / env_distance[0])
-    velocity_idx = int((state[1] - env_low[1]) / env_distance[1])
+    env_distance = (env_high - env_low) / one_feature
+    state_array = state[0] if isinstance(state, tuple) else state
+    position_idx = int((state_array[0] - env_low[0]) / env_distance[0])
+    velocity_idx = int((state_array[1] - env_low[1]) / env_distance[1])
     state_idx = position_idx + velocity_idx * one_feature
     return state_idx
 
@@ -72,7 +73,7 @@ def main():
         while True:
             state_idx = idx_state(env, state)
             action = np.argmax(q_table[state_idx])
-            next_state, reward, done, _ = env.step(action)
+            next_state, reward, done, _, _ = env.step(action)
             
             irl_reward = get_reward(feature_matrix, theta, n_states, state_idx)
             next_state_idx = idx_state(env, next_state)
